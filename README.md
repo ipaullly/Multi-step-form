@@ -19,7 +19,7 @@ This single page app allows users to fill in information on a form with basic va
 clone the repository
 
 ```
-git clone https://github.com/ipaullly/pet-store-react-UI.git
+git clone git@github.com:ipaullly/Multi-step-form.git multi-step-form
 ```
 cd into the multi-step-form directory and run the command to install all requirements from package.json
 
