@@ -2,6 +2,10 @@ import { useState } from 'react'
 import TabComponent from './components/TabComponent'
 import FormComponent from './pages/FormComponent'
 
+import './index.css'
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
 // type IFormData = {
 //   id: string
 //   title: string
@@ -18,14 +22,19 @@ function App() {
   const [tab, setTab] = useState<number>(0);
 
   return (
-    <div className='bg-blue-100 text-center w-full h-screen flex flex-col items-center'>
-      <h2 className='m-3 underline text-2xl'>MultiForm SPA</h2>
-      <TabComponent 
-        setTab={setTab}
-        tab={tab}
-      />
-      <FormComponent tab={tab}/>
-    </div>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <div className='landing'>
+        <h2 className='title'>MultiForm SPA</h2>
+        <TabComponent 
+          setTab={setTab}
+          tab={tab}
+        />
+        <FormComponent 
+          tab={tab} 
+          setTab={setTab}
+        />
+      </div>
+    </LocalizationProvider>
   )
 }
 

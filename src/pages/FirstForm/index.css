@@ -1,0 +1,23 @@
+.first__form_btns {
+  display: flex;
+  flex-direction: row-reverse;
+  width: 100%;
+  color: white;
+  margin: .3rem;
+}
+
+.second__form_btns {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  color: white;
+  margin: .3rem;
+}
+
+.submit__btn {
+  outline: none;
+  padding: 15px 20px;
+  background-color: orange;
+  color: white;
+}

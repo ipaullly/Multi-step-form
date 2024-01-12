@@ -1,12 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.landing {
+  text-align: center;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-@layer components {
-  .active__btn {
-    @apply m-4 py-2 px-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
-  }
-  .default__btn {
-    @apply m-4 py-2 px-4 bg-white text-black font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75;
-  }
+.title {
+  margin: 10px;
+  text-decoration: underline;
+  font-size: larger;
+}
+.active__btn {
+  padding: 1rem 2rem;
+}
+
+.default__btn {
+
 }
