@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import TabComponent from './components/TabComponent'
 import FormComponent from './pages/FormComponent'
 
 import './index.css'
@@ -25,10 +24,6 @@ function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <div className='landing'>
         <h2 className='title'>MultiForm SPA</h2>
-        <TabComponent 
-          setTab={setTab}
-          tab={tab}
-        />
         <FormComponent 
           tab={tab} 
           setTab={setTab}

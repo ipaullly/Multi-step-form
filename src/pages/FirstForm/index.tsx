@@ -1,10 +1,29 @@
-import React from 'react'
-import { Control, Controller, FieldErrors, UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { ValidationSchema } from '../../schema/formSchema';
-import { Box, Checkbox, Chip, FormControl, InputLabel, ListItemText, MenuItem, OutlinedInput, Select, SelectChangeEvent, TextField } from '@mui/material';
+import React from "react";
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormClearErrors,
+  UseFormRegister,
+  UseFormSetValue,
+} from "react-hook-form";
+import { ValidationSchema } from "../../schema/formSchema";
+import {
+  Box,
+  Chip,
+  FormControl,
+  FormHelperText,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  SelectChangeEvent,
+  TextField,
+} from "@mui/material";
 
-import './index.css'
-import { Itag } from '../FormComponent';
+import "./index.css";
+import { Itag } from "../FormComponent";
+import { assignees, checkFormErrors } from "../../utils/reusables";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -20,13 +39,14 @@ const MenuProps = {
 interface FirstFormProps {
   handleAssigneeChange: (args: SelectChangeEvent) => void;
   register: UseFormRegister<ValidationSchema>;
-  // handleTagsChange: (args: SelectChangeEvent<string[]>) => void;
-  tags: "" | string[] | undefined;
+  tags: string[] | undefined;
   setTags: (args: string[]) => void;
   setValue: UseFormSetValue<ValidationSchema>;
   tagNames: Itag[];
   control: Control<ValidationSchema> | undefined;
   errors: FieldErrors<ValidationSchema>;
+  clearErrors: UseFormClearErrors<ValidationSchema>;
+  setFirstFormErrors: (args: [] | string[]) => void;
   assignee: string;
 }
 
@@ -34,160 +54,193 @@ export function RedBar() {
   return (
     <Box
       sx={{
-        height: 20,
-        backgroundColor: 'rgba(255, 255, 255)',
+        height: 30,
+        backgroundColor: "rgba(255, 255, 255)",
       }}
     />
   );
 }
 
-const FirstForm: React.FC<FirstFormProps> = ({ 
-  // register, 
-  errors, 
+const FirstForm: React.FC<FirstFormProps> = ({
+  // register,
+  errors,
   // handleAssigneeChange,
   // assignee,
   // handleTagsChange,
+  setFirstFormErrors,
   setValue,
   setTags,
+  clearErrors,
   tags,
   control,
-  tagNames
+  tagNames,
 }) => {
-
+  const [assigneeArray, ] = React.useState<Itag[]>(assignees);
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        '& .MuiTextField-root': { width: '40ch' },
+        display: "flex",
+        flexDirection: "column",
+        "& .MuiTextField-root": { width: "100%" },
       }}
     >
       <RedBar />
-      <FormControl sx={{ width: 300 }}>
-        <TextField 
-          required
-          id="title-field"
-          label="Title"
-          defaultValue="Hello World"
-          margin='normal'
-        />
-      </FormControl>
+      <Controller
+        name={"title"}
+        control={control}
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <FormControl sx={{
+            width: { 
+              xs: 250,
+              md: 400,
+              lg: 600
+            }
+          }}>
+            <TextField
+              helperText={error ? error.message : null}
+              error={!!error}
+              onChange={(e) => {
+                const newErrorsArr = checkFormErrors(errors, 'first');
+                setFirstFormErrors(newErrorsArr);
+                onChange(e.target.value)
+              }}
+              value={value}
+              label="Title"
+              margin="normal"
+              variant="outlined"
+              style={{
+                width: "100%",
+              }}
+            />
+          </FormControl>
+        )}
+      />
       <RedBar />
-      <FormControl sx={{ width: 300 }}>
-        <TextField 
-          label="Description" 
-          id="description-field" 
-          margin="normal" 
+      <FormControl sx={{
+        width: { 
+          xs: 250,
+          md: 400,
+          lg: 600
+        }
+      }}>
+        <TextField
+          label="Description"
+          id="description-field"
+          margin="normal"
+          style={{
+            width: "100%",
+          }}
           multiline
         />
       </FormControl>
       <RedBar />
-      {/* <TagInputField 
-        register={register}
-        errors={errors}
-      /> */}
-      
-      <FormControl sx={{ width: 300 }}>
-        {/* <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
-        <Controller
-          control={control}
-          name="tags"
-          render={({ field }) => (
+      <Controller
+        render={({ field, fieldState: { error } }) => (
+          <FormControl sx={{
+            width: { 
+              xs: 250,
+              md: 400,
+              lg: 600
+            }
+          }}>
+            <InputLabel id="demo-multiple-chip-label">Tags</InputLabel>
             <Select
-              labelId="demo-multiple-checkbox-label"
-              id="demo-multiple-checkbox"
-              {...field}
+              labelId="demo-multiple-chip-label"
+              id="demo-multiple-chip"
               multiple
-              value={field.value}
-              onChange={(e) => { 
-                console.log('tags',e.target)
+              {...field}
+              value={tags}
+              onFocus={() => {
+                clearErrors("tags");
+                const newErrorsArr = checkFormErrors(errors, 'first');
+                setFirstFormErrors(newErrorsArr);
               }}
-              input={<OutlinedInput label="Tag" />}
-              renderValue={(selected) => selected.join(', ')}
+              onChange={(event: SelectChangeEvent<string[]>) => {
+                console.log('tags', (event.target.value as string[]).map(item => item+''))
+                const arrTag = (event.target.value as string[]).map((item: number|string) => item +'')
+                setTags(event.target.value as string[]);
+                setValue("tags", arrTag as [string, ...string[]]);
+              }}
+              input={<OutlinedInput id="select-multiple-chip" label="Tags" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value: string) => (
+                    <Chip key={value} label={tagNames[Number(value)].name} />
+                  ))}
+                </Box>
+              )}
               MenuProps={MenuProps}
             >
-              <MenuItem value=''>Select tags</MenuItem>
-              {tagNames.map(({name, id}) => (
-                <MenuItem key={id} value={name}>
-                  <Checkbox checked={tags?.includes(name)} />
-                  <ListItemText primary={name} />
-                </MenuItem>
-              ))}
+              {tagNames.length > 0 &&
+                tagNames.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
             </Select>
-          )}
-        /> */}
-        <InputLabel id="demo-multiple-checkbox-label">Tag(s)</InputLabel>
-        <Controller
-          render={({field}) => (
-            <Select
-              labelId="demo-multiple-checkbox-label"
-              id="demo-mutiple-chip"
-              multiple
-              fullWidth
-              {...field}
-              // variant="outlined"
-              input={<OutlinedInput label="Tag" />}
-              value={tags}
-              onChange={(event: SelectChangeEvent<string[]>) => {
-                setTags(event.target.value as string[]);
-                console.log('tags', event.target.value)
-                setValue("tags", event.target.value as string[]);
+            <FormHelperText
+              sx={{
+                color: "error.main",
               }}
-              renderValue={selected => (
-                <div style={{marginRight: '15px'}}>
-                  {(selected as string[]).map(value => (
-                    <Chip key={value} label={value} />
-                  ))}
-                </div>
-              )}
             >
-              {tagNames.length > 0 && tagNames.map(mi => (
-                <MenuItem key={mi.id} value={mi.name}>
-                  {mi.name}
-                </MenuItem>
-              ))}
-            </Select>
-          )}
-          name="tags"
-          control={control}
-        />
-        {errors?.tags && (
-          <p className="text-xs italic text-red-500 mt-2">
-            {'Enter at least one tag'}
-          </p>
+              {error?.message ?? ""}
+            </FormHelperText>
+          </FormControl>
         )}
-      </FormControl>
+        name="tags"
+        control={control}
+      />
       <RedBar />
-      <FormControl sx={{ width: 300 }}>
-        <InputLabel id="demo-simple-select-label">Assignee</InputLabel>
-        <Controller
-          control={control}
-          name="assignee"
-          render={({ field }) => (
-            // <ReactDatePicker
-            //   onChange={onChange} // send value to hook form
-            //   onBlur={onBlur} // notify when input is touched/blur
-            //   selected={value}
-            // />
+      <Controller
+        control={control}
+        name="assignee"
+        render={({ field, fieldState: { error } }) => (
+          <FormControl 
+            sx={{
+              width: { 
+                xs: 250,
+                md: 400,
+                lg: 600
+              }
+            }}
+          >
+            <InputLabel id="demo-simple-select-label">Assignee</InputLabel>
             <Select
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               {...field}
               value={field.value}
               label="Assignee"
-              onChange={(e) => field.onChange(e.target.value as string)}
+              onChange={(e) => {
+                field.onChange(`${e.target.value}` as string)
+              }}
+              onBlur={() => {
+                const newErrorsArr = checkFormErrors(errors, 'first');
+                setFirstFormErrors(newErrorsArr);
+              }} 
             >
-              <MenuItem value={'john'}>John</MenuItem>
-              <MenuItem value={'powell'}>Powell</MenuItem>
-              <MenuItem value={'luke'}>Luke</MenuItem>
+              <MenuItem value={""}>Select assignee</MenuItem>
+              {assigneeArray.length > 0 &&
+                assigneeArray.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
             </Select>
-           )}
-         />
-      </FormControl>
+            <FormHelperText
+              sx={{
+                color: "error.main",
+              }}
+            >
+              {error?.message ?? ""}
+            </FormHelperText>
+          </FormControl>
+        )}
+      />
       <RedBar />
       <RedBar />
     </Box>
-  )
-}
+  );
+};
 
-export default FirstForm
+export default FirstForm;

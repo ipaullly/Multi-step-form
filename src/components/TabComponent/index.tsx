@@ -6,7 +6,9 @@ import './index.css'
 // Define the prop types for the component
 interface TabComponentProps {
   setTab: (args: number) => void;
-  tab: number
+  tab: number,
+  firstFormErrors: string[]|[],
+  secondFormErrors: string[]|[],
 }
 
 function a11yProps(index: number) {
@@ -16,10 +18,15 @@ function a11yProps(index: number) {
   };
 }
 
-const TabComponent: React.FC<TabComponentProps> = ({ setTab, tab }) => {
+const TabComponent: React.FC<TabComponentProps> = ({ 
+  setTab, 
+  tab,
+  firstFormErrors,
+  secondFormErrors
+}) => {
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log('tab value', newValue)
+    // console.log('tab value', newValue)
     setTab(newValue);
   };
 
@@ -31,8 +38,55 @@ const TabComponent: React.FC<TabComponentProps> = ({ setTab, tab }) => {
           onChange={handleChange} 
           aria-label="form-tabs"
         >
-          <Tab label="Step 1" {...a11yProps(0)} />
-          <Tab label="Step 2" {...a11yProps(1)} />
+          <Tab 
+            label={
+              firstFormErrors.length > 0
+              ? <div 
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span
+                    style={{
+                      backgroundColor: 'red',
+                      borderRadius: '50%',
+                      padding: '5px 10px',
+                      color: 'white',
+                      marginRight: '10px'
+                    }}
+                  >{firstFormErrors.length}</span>
+                  <span>Step 1</span>
+                </div> 
+              : <span>Step 1</span>
+            } 
+            {...a11yProps(0)} 
+          />
+          <Tab
+            label={
+              secondFormErrors.length > 0
+              ? <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span
+                    style={{
+                      backgroundColor: 'red',
+                      borderRadius: '50%',
+                      padding: '5px 10px',
+                      color: 'white',
+                      marginRight: '10px'
+                    }}
+                  >{secondFormErrors.length}</span>
+                  <span>Step 2</span>
+                </div> 
+              : <span>Step 2</span>
+            } 
+          {...a11yProps(1)} />
         </Tabs>
       </Box>
     </Box>

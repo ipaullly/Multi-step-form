@@ -1,24 +1,36 @@
-import { Button } from '@mui/material';
-import React from 'react'
+import { Button } from "@mui/material";
+import React from "react";
+import { FieldErrors } from "react-hook-form";
+import { ValidationSchema } from "../../schema/formSchema";
+import { checkFormErrors } from "../../utils/reusables";
 
 interface BtnProps {
   setTab: (args: number) => void;
+  setFirstFormErrors: (args: [] | string[]) => void;
+  errors: FieldErrors<ValidationSchema>;
 }
 
-const NextBtn: React.FC<BtnProps> = ({ setTab }) => {
+const NextBtn: React.FC<BtnProps> = ({
+  setTab,
+  setFirstFormErrors,
+  errors,
+}) => {
+  const handleNextBtn = () => {
+    setTab(1);
+    const newErrorsArr = checkFormErrors(errors, 'first');
+    setFirstFormErrors(newErrorsArr);
+  };
   return (
-    <Button 
-      onClick={() => setTab(1)}
+    <Button
+      onClick={() => {
+        handleNextBtn();
+      }}
       variant="contained"
-      color='secondary'
-    >Next</Button>
-    // <button 
-    //   onClick={() => setTab(1)}
-    //   className="outline-none px-4 py-2 bg-orange-500"
-    // >
-    //   Next
-    // </button>
-  )
-}
+      color="secondary"
+    >
+      Next
+    </Button>
+  );
+};
 
-export default NextBtn
+export default NextBtn;

@@ -5,62 +5,58 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import SecondForm from '../SecondForm';
 import PreviousBtn from '../../components/PreviousBtn';
 import NextBtn from '../../components/NextBtn';
-import TagInputField from '../../components/TagInputField';
+
 import { 
   FormComponentProps, 
   ValidationSchema, 
   validationSchema 
 } from '../../schema/formSchema';
-import { Button, SelectChangeEvent } from '@mui/material';
+import { Box, Button, Modal, SelectChangeEvent, Typography } from '@mui/material';
 import FirstForm from '../FirstForm';
 
 import './index.css'
 import dayjs, { Dayjs } from 'dayjs';
+import TabComponent from '../../components/TabComponent';
+import { names } from '../../utils/reusables';
 
 export type Itag = {
   id: number,
   name: string
 }
 
-const names = [
-  {
-    id: 0,
-    name: 'red'
-  },
-  {
-    id: 1,
-    name: 'blue'
-  },
-  {
-    id: 2,
-    name: 'yellow'
-  }
-];
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
 
 const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
 
   const [age, setAge] = React.useState('');
   const [tags, setTags] = React.useState<string[]>([]);
-  const [tagNames, setTagNames] = React.useState<Itag[]>(names);
+  const [tagNames,] = React.useState<Itag[]>(names);
+  const [rangeDuration, setRangeDuration] = React.useState<number>(0);
+  const [selectedStartDate, setSelectedStartDate] = React.useState<string | number | Date | Dayjs | undefined>()
 
   const [startDateVal, setStartDateVal] = React.useState<Dayjs | null>(dayjs('2022-04-17'));
   const [endDateVal, setEndDateVal] = React.useState<Dayjs | null>(dayjs('2022-04-17'));
 
-  const handleTagsChange = (event: SelectChangeEvent<typeof tags>) => {
-    const {
-      target: { value },
-    } = event;
-    console.log('tags value', tags);
-    console.log('tag options', tagNames);
-    setTags(
-      // On autofill we get a stringified value.
-      typeof value === 'string' ? value.split(',') : value,
-    );
-  };
+  const [firstFormErrors, setFirstFormErrors] = React.useState<string[]>([]);
+  const [secondFormErrors, setSecondFormErrors] = React.useState<string[]>([]);
 
   const handleAssigneeChange = (event: SelectChangeEvent) => {
     setAge(event.target.value as string);
   };
+
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const {
     register,
@@ -68,110 +64,80 @@ const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
     control,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm<ValidationSchema>({
     resolver: zodResolver(validationSchema),
-    defaultValues: validationSchema.parse({
+    defaultValues: {
       // Your values here
-      title: 'dog',
-      assignee: 'john',
+      title: '',
+      assignee: '',
       tags: tags,
-      startDate: new Date(),
-      endDate: new Date(),
-      target: 5
-    }),
+      startDate: '',
+      endDate: '',
+      target: ''
+    },
   });
 
   React.useEffect(() => {
-    const subscription = watch((value, options) =>
-      console.log('watch',value, options)
-    )
+    // console.log('errors effect', Object.keys(errors))
+    const errorArray = Object.keys(errors);
+    if (errorArray.length > 0) {
+      const firstFormKeys = ['title', 'tags', 'assignee'];
+      const secondFormKeys = ['startDate', 'endDate', 'target'];
+      const errorKeys: string[] = [];
+      const secondErrorKeys: string[] = []
+      errorArray.forEach(elem => {
+        if (firstFormKeys.includes(elem)) {
+          errorKeys.push(elem)
+        }
+        if (secondFormKeys.includes(elem)) {
+          secondErrorKeys.push(elem)
+        }
+      });
+     
+      setFirstFormErrors(errorKeys);
+      setSecondFormErrors(secondErrorKeys);
+      if (errorKeys.length >= 1) {
+        setTab(0)
+      } else {
+        setTab(1)
+      }
+    }
+    return () => {}
+  }, [errors, setTab])
+
+  React.useEffect(() => {
+    const subscription = watch((value, options) => {
+      if (options.name === 'startDate') {
+        setSelectedStartDate(dayjs(value?.startDate));
+      }
+      if (options.name === 'endDate') {
+        const date1 = dayjs(value?.startDate)
+        const duration = dayjs(value?.endDate).diff(date1, 'day', true)
+        setRangeDuration(duration)
+      }
+    })
     return () => subscription.unsubscribe()
   }, [watch])
 
   const onSubmit: SubmitHandler<ValidationSchema> = (data) => {
-    console.log('form submit',data)
+    if (Object.keys(errors).length) {
+      setFirstFormErrors([]);
+      setSecondFormErrors([]);
+    }
+    handleOpen()
+    console.log('Form data', data)
   };
 
-  const First = () => (
-    <div className='flex flex-col'>
-      <div className="m-3">
-        <label
-          className="block mb-2 text-sm font-bold text-gray-700"
-          htmlFor="title"
-        >
-          Title
-        </label>
-        <input
-          className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded appearance-none focus:outline-none focus:shadow-outline"
-          id="title"
-          type="text"
-          placeholder="Narnia"
-          {...register("title")} 
-        />
-        {errors.title && (
-          <p className="text-xs italic text-red-500 mt-2">
-            {errors.title?.message}
-          </p>
-        )}
-      </div>
-      <div className="m-3">
-        <label
-          className="block mb-2 text-sm font-bold text-gray-700"
-          htmlFor="desc"
-        >
-          Description
-        </label>
-        <textarea
-          className="w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded appearance-none focus:outline-none focus:shadow-outline"
-          id="desc"
-          placeholder="The world ever after"
-          {...register("description")} 
-        />
-      </div>
-      <div className='m-3'>
-        <TagInputField 
-          register={register}
-          errors={errors}
-        />
-      </div>
-      <div className="m-3">
-        <label
-          className="block mb-2 text-sm font-bold text-gray-700"
-          htmlFor="assignee"
-        >
-          Assignee
-        </label>
-        <select
-          id="assignee" 
-          className='w-full px-3 py-2 text-sm leading-tight text-gray-700 border rounded appearance-none focus:outline-none focus:shadow-outline'
-          {...register('assignee', { required: true } )}
-        >
-          <option value="0">Select assignee:</option>
-          <option value="1">Audi</option>
-          <option value="2">BMW</option>
-          <option value="3">Citroen</option>
-          <option value="4">Ford</option>
-          <option value="5">Honda</option>
-          <option value="6">Jaguar</option>
-          <option value="7">Land Rover</option>
-          <option value="8">Mercedes</option>
-          <option value="9">Mini</option>
-          <option value="10">Nissan</option>
-          <option value="11">Toyota</option>
-          <option value="12">Volvo</option>
-        </select>
-        {errors?.assignee && (
-          <p className="text-xs italic text-red-500 mt-2">
-            {'Please select an assignee'}
-          </p>
-        )}
-      </div>
-    </div>
-  )
-
   return (
-    <div className='flex flex-col w-3/4'>
+    <div className='form__component'>
+      <TabComponent 
+        setTab={setTab}
+        tab={tab}
+        firstFormErrors={firstFormErrors}
+        secondFormErrors={secondFormErrors}
+      />
       <form 
         onSubmit={handleSubmit(onSubmit)}
       >
@@ -183,10 +149,12 @@ const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
               errors={errors}
               assignee={age}
               handleAssigneeChange={handleAssigneeChange}
+              setFirstFormErrors={setFirstFormErrors}
               tags={tags}
               tagNames={tagNames}
               control={control}
               setTags={setTags}
+              clearErrors={clearErrors}
               setValue={setValue}
             />
           ):(
@@ -195,8 +163,14 @@ const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
               errors={errors}
               startDate={startDateVal}
               endDate={endDateVal}
+              control={control}
+              setSecondFormErrors={setSecondFormErrors}
               setStartDateVal={setStartDateVal}
               setEndDateVal={setEndDateVal}
+              setValue={setValue}
+              selectedStartDate={selectedStartDate} 
+              rangeDuration={rangeDuration}
+              clearErrors={clearErrors}
             />
           )
         }
@@ -204,17 +178,15 @@ const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
           tab === 0
           ? (
             <div className='first__form_btns'>
-              <NextBtn setTab={setTab}/>
+              <NextBtn 
+                setTab={setTab}
+                setFirstFormErrors={setFirstFormErrors}
+                errors={errors}
+              />
             </div>
           ) : (
             <div className='second__form_btns'>
               <PreviousBtn setTab={setTab} /> 
-              {/* <button 
-                type='submit'
-                className="submit__btn"
-              >
-                Submit
-              </button> */}
               <Button 
                 type="submit"
                 variant="contained"
@@ -223,6 +195,30 @@ const FormComponent: React.FC<FormComponentProps> = ({ tab, setTab }) => {
           )
         }
       </form>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Form Submission
+          </Typography>
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+            Details submitted successfully
+          </Typography>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row-reverse',
+          }}>
+            <Button 
+              onClick={handleClose}
+              color='primary'
+            >Close</Button>
+          </div>
+        </Box>
+      </Modal>
     </div>
   )
 }
