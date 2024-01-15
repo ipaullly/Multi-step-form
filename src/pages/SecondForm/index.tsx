@@ -31,50 +31,48 @@ interface InputProps {
   setEndDateVal: (args: Dayjs | null) => void;
 }
 
-const addCommas = (num: string) => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const addCommas = (num: string) =>
+  num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 const removeNonNumeric = (num: string) => num.toString().replace(/[^0-9]/g, "");
 
 const today = dayjs().toISOString();
 
 const SecondForm: React.FC<InputProps> = ({
-  // register,
   errors,
   control,
-  // startDate,
-  // endDate,
   clearErrors,
   setValue,
   selectedStartDate,
   rangeDuration,
   setSecondFormErrors,
-  // setStartDateVal,
-  // setEndDateVal
 }) => {
   const handleOnAccept = () => {
-    clearErrors('startDate')
-    const newErrorsArr = checkFormErrors(errors, 'second');
+    clearErrors("startDate");
+    const newErrorsArr = checkFormErrors(errors, "second");
     setSecondFormErrors(newErrorsArr);
-  }
+  };
   return (
     <Box
-    sx={{
-      display: "flex",
-      flexDirection: "column",
-      "& .MuiTextField-root": { width: "100%" },
-    }}
-  >
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        "& .MuiTextField-root": { width: "100%" },
+      }}
+    >
       <RedBar />
       <Controller
         control={control}
         name="startDate"
         render={({ field, fieldState: { error } }) => (
-          <FormControl sx={{ 
-            width: { 
-              xs: 250,
-              md: 400,
-              lg: 600
-            }
-           }}>
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
             <DatePicker
               label="Start Date"
               defaultValue={today}
@@ -89,11 +87,13 @@ const SecondForm: React.FC<InputProps> = ({
                 },
               }}
               className="date-input"
-              onChange={(date: string | number | Date | Dayjs | null | undefined) => {
+              onChange={(
+                date: string | number | Date | Dayjs | null | undefined
+              ) => {
                 setValue("startDate", dayjs(date).toISOString());
               }}
               onAccept={() => {
-                handleOnAccept()
+                handleOnAccept();
               }}
             />
           </FormControl>
@@ -104,12 +104,15 @@ const SecondForm: React.FC<InputProps> = ({
         control={control}
         name="endDate"
         render={({ field, fieldState: { error } }) => (
-          <FormControl sx={{width: { 
-            xs: 250,
-            md: 400,
-            lg: 600
-          }
-         }}>
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
             <DatePicker
               label="End Date"
               minDate={selectedStartDate}
@@ -123,11 +126,13 @@ const SecondForm: React.FC<InputProps> = ({
                 },
               }}
               onAccept={() => {
-                clearErrors('endDate')
-                const newErrorsArr = checkFormErrors(errors, 'second');
+                clearErrors("endDate");
+                const newErrorsArr = checkFormErrors(errors, "second");
                 setSecondFormErrors(newErrorsArr);
               }}
-              onChange={(date: string | number | Date | Dayjs | null | undefined) => {
+              onChange={(
+                date: string | number | Date | Dayjs | null | undefined
+              ) => {
                 setValue("endDate", dayjs(date).toISOString());
               }}
             />
@@ -135,14 +140,15 @@ const SecondForm: React.FC<InputProps> = ({
         )}
       />
       <RedBar />
-      <FormControl 
+      <FormControl
         sx={{
-          width: { 
+          width: {
             xs: 250,
             md: 400,
-            lg: 600
-          }
-         }}>
+            lg: 600,
+          },
+        }}
+      >
         <TextField
           id="outlined-read-only-input"
           label="Duration"
@@ -157,23 +163,26 @@ const SecondForm: React.FC<InputProps> = ({
         name={"target"}
         control={control}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <FormControl sx={{ width: { 
-            xs: 250,
-            md: 400,
-            lg: 600
-          }
-         }}>
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
             <TextField
               helperText={error ? error.message : null}
               error={!!error}
               onChange={(e) => {
-                console.log('val', e.target.value)
-                const value = addCommas(removeNonNumeric(e.target.value))
-                const newErrorsArr = checkFormErrors(errors, 'second');
+                console.log("val", e.target.value);
+                const value = addCommas(removeNonNumeric(e.target.value));
+                const newErrorsArr = checkFormErrors(errors, "second");
                 setSecondFormErrors(newErrorsArr);
-                onChange(value)
+                onChange(value);
               }}
-              value={value?value:''}
+              value={value ? value : ""}
               fullWidth
               type="text"
               InputLabelProps={{

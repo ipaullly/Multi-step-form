@@ -25,8 +25,7 @@ const TabComponent: React.FC<TabComponentProps> = ({
   secondFormErrors
 }) => {
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    // console.log('tab value', newValue)
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
 

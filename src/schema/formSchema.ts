@@ -13,7 +13,6 @@ export const validationSchema = z
     target: z
       .string()
       .min(1, { message: "Target is required" }),
-      // .transform((val) => removeNonNumeric(val)),
   });
 
 export type ValidationSchema = z.infer<typeof validationSchema>;

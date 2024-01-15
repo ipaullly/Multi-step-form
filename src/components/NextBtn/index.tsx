@@ -17,7 +17,7 @@ const NextBtn: React.FC<BtnProps> = ({
 }) => {
   const handleNextBtn = () => {
     setTab(1);
-    const newErrorsArr = checkFormErrors(errors, 'first');
+    const newErrorsArr = checkFormErrors(errors, "first");
     setFirstFormErrors(newErrorsArr);
   };
   return (

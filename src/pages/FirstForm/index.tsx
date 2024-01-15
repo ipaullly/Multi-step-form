@@ -39,7 +39,7 @@ const MenuProps = {
 interface FirstFormProps {
   handleAssigneeChange: (args: SelectChangeEvent) => void;
   register: UseFormRegister<ValidationSchema>;
-  tags: string[] | undefined;
+  tags: number[] | string[] | undefined;
   setTags: (args: string[]) => void;
   setValue: UseFormSetValue<ValidationSchema>;
   tagNames: Itag[];
@@ -75,7 +75,7 @@ const FirstForm: React.FC<FirstFormProps> = ({
   control,
   tagNames,
 }) => {
-  const [assigneeArray, ] = React.useState<Itag[]>(assignees);
+  const [assigneeArray] = React.useState<Itag[]>(assignees);
   return (
     <Box
       sx={{
@@ -89,20 +89,22 @@ const FirstForm: React.FC<FirstFormProps> = ({
         name={"title"}
         control={control}
         render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <FormControl sx={{
-            width: { 
-              xs: 250,
-              md: 400,
-              lg: 600
-            }
-          }}>
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
             <TextField
               helperText={error ? error.message : null}
               error={!!error}
               onChange={(e) => {
-                const newErrorsArr = checkFormErrors(errors, 'first');
+                const newErrorsArr = checkFormErrors(errors, "first");
                 setFirstFormErrors(newErrorsArr);
-                onChange(e.target.value)
+                onChange(e.target.value);
               }}
               value={value}
               label="Title"
@@ -116,33 +118,45 @@ const FirstForm: React.FC<FirstFormProps> = ({
         )}
       />
       <RedBar />
-      <FormControl sx={{
-        width: { 
-          xs: 250,
-          md: 400,
-          lg: 600
-        }
-      }}>
-        <TextField
-          label="Description"
-          id="description-field"
-          margin="normal"
-          style={{
-            width: "100%",
-          }}
-          multiline
+      <Controller
+        name={"description"}
+        control={control}
+        render={({ field }) => (
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
+            <TextField
+              label="Description"
+              id="description-field"
+              margin="normal"
+              {...field}
+              style={{
+                width: "100%",
+              }}
+              multiline
+            />
+
+          </FormControl>
+        )}
         />
-      </FormControl>
       <RedBar />
       <Controller
         render={({ field, fieldState: { error } }) => (
-          <FormControl sx={{
-            width: { 
-              xs: 250,
-              md: 400,
-              lg: 600
-            }
-          }}>
+          <FormControl
+            sx={{
+              width: {
+                xs: 250,
+                md: 400,
+                lg: 600,
+              },
+            }}
+          >
             <InputLabel id="demo-multiple-chip-label">Tags</InputLabel>
             <Select
               labelId="demo-multiple-chip-label"
@@ -152,19 +166,20 @@ const FirstForm: React.FC<FirstFormProps> = ({
               value={tags}
               onFocus={() => {
                 clearErrors("tags");
-                const newErrorsArr = checkFormErrors(errors, 'first');
+                const newErrorsArr = checkFormErrors(errors, "first");
                 setFirstFormErrors(newErrorsArr);
               }}
-              onChange={(event: SelectChangeEvent<string[]>) => {
-                console.log('tags', (event.target.value as string[]).map(item => item+''))
-                const arrTag = (event.target.value as string[]).map((item: number|string) => item +'')
+              onChange={(event: SelectChangeEvent<(string|number)[]>) => {
+                const arrTag = (event.target.value as string[]).map(
+                  (item: number | string) => item + ""
+                );
                 setTags(event.target.value as string[]);
                 setValue("tags", arrTag as [string, ...string[]]);
               }}
               input={<OutlinedInput id="select-multiple-chip" label="Tags" />}
               renderValue={(selected) => (
                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                  {selected.map((value: string) => (
+                  {selected.map((value: string|number) => (
                     <Chip key={value} label={tagNames[Number(value)].name} />
                   ))}
                 </Box>
@@ -195,13 +210,13 @@ const FirstForm: React.FC<FirstFormProps> = ({
         control={control}
         name="assignee"
         render={({ field, fieldState: { error } }) => (
-          <FormControl 
+          <FormControl
             sx={{
-              width: { 
+              width: {
                 xs: 250,
                 md: 400,
-                lg: 600
-              }
+                lg: 600,
+              },
             }}
           >
             <InputLabel id="demo-simple-select-label">Assignee</InputLabel>
@@ -212,12 +227,12 @@ const FirstForm: React.FC<FirstFormProps> = ({
               value={field.value}
               label="Assignee"
               onChange={(e) => {
-                field.onChange(`${e.target.value}` as string)
+                field.onChange(`${e.target.value}` as string);
               }}
               onBlur={() => {
-                const newErrorsArr = checkFormErrors(errors, 'first');
+                const newErrorsArr = checkFormErrors(errors, "first");
                 setFirstFormErrors(newErrorsArr);
-              }} 
+              }}
             >
               <MenuItem value={""}>Select assignee</MenuItem>
               {assigneeArray.length > 0 &&
